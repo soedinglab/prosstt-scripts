@@ -543,19 +543,10 @@ def read_all(folder, prefix, sign_thresh=2):
     norm = np.loadtxt(folder + "/" + prefix + "_norm_pvals.txt")
     pois = np.loadtxt(folder + "/" + prefix + "_pois_pvals.txt")
 
-    res = {}
-    pvals = np.matrix([negbin, pois, norm])
-    diffs = np.apply_along_axis(differences, 0, pvals)
-
-    best_negbin = (diffs[0] > sign_thresh) & (diffs[1] > sign_thresh)
-    best_poisson = (diffs[0] < -sign_thresh) & (diffs[2] > sign_thresh)
-    best_lognorm = (diffs[1] < -sign_thresh) & (diffs[2] < -sign_thresh)
-
-    delta_BIC_above_cutoff = np.array([sum(best_negbin),
-                                       sum(best_poisson),
-                                       sum(best_lognorm)])
-    total_genes_surveyed = np.array([len(norm), len(pois), len(negbin)])
-    return delta_BIC_above_cutoff, total_genes_surveyed
+    bics = np.array([negbin, pois, norm])
+    counts = np.unique(np.argmax(bics, axis=0), return_counts=True)
+   
+    return counts
 
 
 def successful(folder, prefix, epsilon=1e-6, sign_thresh=2):
